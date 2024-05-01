@@ -31,20 +31,57 @@ conda activate hotdog
 
 ### Training the Model
 
-Explain how to train the model using the scripts in your repository.
+```python
+model = u.build_model()
 
+# Adjust class weights based on the dataset balance
+class_weights = {0: 1, # o
+                 1: 1} # n
+
+history, model = u.train_model(model, x_train, y_train, x_val, y_val, 
+                      epochs=30, batch_size=64, class_weights=class_weights)
+
+u.plot_loss(history)
 ```
-python train.py
-```
+
 
 ### Using the Model
 
-Explain how to use the model. Show a few examples in your `demo.ipynb`.
+```python
+# Load demo data from the folder
+file_paths = ["../Data/demo.json"]
+x_data, y_data = u.load_data(file_paths) 
+```
+
+```python
+# Load model from the folder
+from tensorflow.keras.models import load_model
+model = load_model('Handpose-Recognition.h5')
+```
+
+```python
+import numpy as np
+
+# Classify handpose
+# sample random handpose from the demo dataset
+idx = np.random.randint(0, len(y_data), size=1)[0] 
+handpose_features = x_data[idx][np.newaxis, :] 
+print('This handpose is not the target handpose.' if y_data[idx]==0 else 
+      'This handpose is the target handpose.')
+
+# Use your model to make predictions
+y_pred = u.classify_handpose(model, handpose_features)
+
+if y_pred[0] == 1:
+    print('The model says this handpose is the target handpose.')
+else:
+    print('The model says this handpose is not the target handpose.')
+```
+
+<img width="400" alt="截屏2024-04-24 18 54 23" src="https://github.com/RubyQianru/final-project-example/assets/142470034/4830b139-ae45-4b60-84c1-669fc4667675">
 
 ## References
 
-You __must__ include references to any papers or GitHub repositories which you used when working on your project.
+1. Transfer learning model is originally based on [TensorFlow Hand Pose Detection Model](https://github.com/tensorflow/tfjs-models/tree/master/hand-pose-detection)
+2. Model report and testing code is based on [DL4M Homework 1](https://github.com/dl4m/homework-1-RubyQianru)
 
-If you borrowed code from another GitHub repository, you __must__ clearly write in your comments what is outsourced (and from where) and what is your own.
-
-Failure to properly credit external sources constitutes plagarism.
